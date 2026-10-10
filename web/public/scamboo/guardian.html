@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>ScamBoo · Guardian</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-32.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ScamBoo">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<div class="app">
+  <main class="page">
+    <span class="badge b-violet" data-bm="Paparan Guardian" data-en="Guardian view"></span>
+    <h1 class="page-title" style="margin-top:10px" data-bm="Hai Amir" data-en="Hi Amir"></h1>
+    <p class="page-sub" data-bm="Ini keadaan perlindungan keluarga anda." data-en="Here's how your family is protected."></p>
+
+    <section class="section" id="liveSec"></section>
+
+    <section class="section">
+      <div class="section-head"><h3 data-bm="Minggu ini" data-en="This week"></h3></div>
+      <div class="stats">
+        <div class="stat"><b>12</b><span data-bm="panggilan disemak" data-en="calls checked"></span></div>
+        <div class="stat warn"><b id="kStopped">2</b><span data-bm="penipuan dihalang" data-en="scams stopped"></span></div>
+        <div class="stat good"><b>RM 0</b><span data-bm="wang hilang" data-en="money lost"></span></div>
+        <div class="stat"><b id="kWarn">22s</b><span data-bm="purata amaran sebelum minta TAC" data-en="avg warning before the TAC ask"></span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3 data-bm="Ahli keluarga" data-en="Family members"></h3></div>
+      <div class="card list">
+        <div class="item"><span class="avatar av-teal">MR</span>
+          <div class="grow"><b>Mak Rosnah, 64</b><small data-bm="Jaga Penuh · semakan terakhir 2 minit lalu" data-en="Jaga Penuh · last check 2 min ago"></small></div>
+          <span class="badge b-green" data-bm="Dilindungi" data-en="Protected"></span></div>
+        <div class="item"><span class="avatar av-teal">AH</span>
+          <div class="grow"><b>Abah Hashim, 68</b><small data-bm="Jaga Penuh · semakan terakhir 1 jam lalu" data-en="Jaga Penuh · last check 1 h ago"></small></div>
+          <span class="badge b-green" data-bm="Dilindungi" data-en="Protected"></span></div>
+        <div class="item"><span class="avatar" style="background:var(--cream-2);color:var(--ink-2)">+</span>
+          <div class="grow"><b data-bm="Tambah ahli keluarga" data-en="Add a family member"></b><small data-bm="Pelan keluarga RM6.90/bulan · hingga 5 orang" data-en="Family plan RM6.90/month · up to 5 people"></small></div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <button class="invite" id="inviteBtn"><img src="assets/brand/ghost-96.png" alt="">
+        <span><b data-bm="Jaga keluarga anda" data-en="Protect your family"></b>
+        <small data-bm="Kongsi ScamBoo dengan adik-beradik, ibu bapa atau kawan melalui WhatsApp." data-en="Share ScamBoo with siblings, parents or friends on WhatsApp."></small></span>
+        <span class="go" data-icon="share"></span></button>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3 data-bm="Amaran terkini" data-en="Recent alerts"></h3><a href="history.html" data-bm="Semua" data-en="All"></a></div>
+      <div class="card list" id="feed"></div>
+    </section>
+
+    <section class="section stack">
+      <a class="btn btn-outline btn-block" href="settings.html"><span data-icon="gear"></span><span data-bm="Tetapan perlindungan Mak" data-en="Mum's protection settings"></span></a>
+      <a class="btn btn-ghost btn-block" href="officer.html"><span data-icon="bank"></span><span data-bm="Paparan pegawai bank (demo)" data-en="Bank officer view (demo)"></span></a>
+      <a class="btn btn-ghost btn-block" href="connector.html"><span data-icon="bolt"></span><span data-bm="Sambungan makmal AI" data-en="AI lab connection"></span></a>
+    </section>
+  </main>
+</div>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+  if (Store.settings().role !== "guardian") Store.set({ role: "guardian" });
+  UI.mount("guardian");
+  document.getElementById("inviteBtn").onclick = () => UI.shareInvite();
+  const s = Store.settings();
+  const calls = Store.calls();
+  const risky = calls.filter(c => c.tier === "HIGH" || c.tier === "MEDIUM");
+  document.getElementById("kStopped").textContent = calls.filter(c => c.tier === "HIGH").length;
+  const w = calls.filter(c => c.warned).map(c => c.warned);
+  if (w.length) document.getElementById("kWarn").textContent = Math.round(w.reduce((a, b) => a + b, 0) / w.length) + "s";
+  const last = risky[0];
+  if (last) {
+    document.getElementById("liveSec").innerHTML = `
+      <div class="card" style="border:2px solid var(--red-bg)">
+        <div class="row"><span class="avatar av-red">${UI.I.shieldAlert}</span>
+          <div class="grow">${UI.tierBadge(last.tier)}<b style="display:block;margin-top:6px">${UI.t(["Amaran senyap", "Silent alert"])} · ${UI.L() ? last.whenEn : last.when}</b>
+            <small class="tiny" style="display:block">${UI.t(["Mak dalam panggilan berisiko", "Mum was on a risky call"])}: ${UI.t(last.label)}</small></div></div>
+        <p class="muted" style="margin-top:12px">${last.ai ? UI.t(["<b>AI telah ambil alih</b>, tiada maklumat dikongsi. Bank dimaklumkan dengan izin Mak.", "<b>The AI took over</b>; nothing was shared. Her bank was told, with her consent."]) : UI.t(["Mak tamatkan panggilan selepas amaran.", "Mum ended the call after the warning."])}
+          ${last.warned ? UI.t([` Amaran ${last.warned} saat sebelum dia minta TAC.`, ` Warned ${last.warned} s before the TAC ask.`]) : ""}</p>
+        <div class="btn-grid" style="margin-top:14px">
+          <a class="btn btn-primary" href="tel:+60100000064">${UI.I.phone}${UI.t(["Call Mak", "Call Mum"])}</a>
+          <a class="btn btn-outline" href="history.html">${UI.t(["Butiran", "Details"])}</a></div>
+      </div>`;
+  }
+  document.getElementById("feed").innerHTML = risky.slice(0, 3).map(c => `
+    <div class="item"><span class="avatar ${c.tier === "HIGH" ? "av-red" : "av-orange"}">${UI.I.shieldAlert}</span>
+      <div class="grow"><b>${UI.t(c.label)}</b><small>Mak Rosnah · ${UI.L() ? c.whenEn : c.when}</small></div>${UI.tierBadge(c.tier)}</div>`).join("");
+</script>
+</body>
+</html>

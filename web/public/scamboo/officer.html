@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>ScamBoo · Fraud Operations</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-32.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ScamBoo">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="desk">
+  <header class="desk-top">
+    <div class="brand"><span class="mark"><img src="assets/brand/ghost-96.png" alt=""></span><div><b>ScamBoo · Fraud Operations</b><small>Live call-risk queue · cases shared with customer consent</small></div></div>
+    <div class="row"><span class="prot-pill"><i class="live-dot"></i> Live</span><a class="lang-btn" href="index.html">← Customer app</a></div>
+  </header>
+  <main class="desk-main">
+    <div class="kpis">
+      <div class="kpi red"><span>Open high-risk calls</span><b id="kOpen">3</b></div>
+      <div class="kpi"><span>RM at risk (open)</span><b id="kRm">RM 152k</b></div>
+      <div class="kpi"><span>Avg warning before the ask</span><b>22 s</b></div>
+      <div class="kpi"><span>Frozen today</span><b id="kFrozen">4</b></div>
+    </div>
+    <div class="qwrap">
+      <div>
+        <table class="qtable" aria-label="Ranked cases">
+          <thead><tr><th>#</th><th>Customer</th><th>Scam type</th><th>Risk</th><th class="hide-sm">Next 30 s</th><th class="hide-sm">Shared</th><th>RM exposure</th><th>Status</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p class="tiny" style="margin-top:10px">Priority = P(scam) × RM exposure × urgency (next-30 s loss forecast) × vulnerability (1.5× for Jaga Penuh). Illustrative data.</p>
+      </div>
+      <aside class="drawer" id="drawer"></aside>
+    </div>
+  </main>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+  const CASES = [
+    { id: "C-2047", who: "F, 64, Kuching", name: "Mak Rosnah", jaga: true, type: "Authority (fake police)", risk: 97, next: 88, shared: "TAC asked", rm: "RM 60–120k", mid: 90,
+      reasons: ["Passed to 'Inspektor Lee' from Bukit Aman", "Accused of money laundering", "Told to keep it secret from family", "Asked for TAC + 'safe account' transfer"],
+      evidence: ["Maybank 5621-4408-9913", "+60 3-2266 xxxx"], timeline: [["0:10", "Medium alert: parcel 'barang terlarang'"], ["0:20", "High alert: handed to fake police"], ["0:20", "Customer handed the call to the AI"], ["0:34", "Caller asked for TAC"], ["0:39", "Mule account captured"]], status: "Open" },
+    { id: "C-2041", who: "M, 71, Ipoh", name: "Encik Lim", jaga: true, type: "Lucky draw", risk: 84, next: 52, shared: "IC", rm: "RM 10–30k", mid: 20,
+      reasons: ["Says he won a telco anniversary draw", "Prize 'tax' of RM1,200 requested", "Offer 'ends today'"], evidence: ["+60 17-880 xxxx"], timeline: [["0:12", "Medium alert"], ["0:31", "Fee requested"]], status: "Open" },
+    { id: "C-2042", who: "F, 23, Subang", name: "Nur A.", jaga: false, type: "Job / mule account", risk: 78, next: 35, shared: "Account no.", rm: "Mule risk", mid: 8,
+      reasons: ["Work-from-home offer, RM300/day", "Asked to 'lend' bank account for payments"], evidence: ["Telegram @hr_agensi"], timeline: [["0:15", "Medium alert"], ["0:40", "Account requested"]], status: "Open" },
+    { id: "C-2043", who: "M, 45, Johor Bahru", name: "Encik Kumar", jaga: false, type: "Bank impersonation", risk: 61, next: 20, shared: "None", rm: "RM 5–15k", mid: 10,
+      reasons: ["Claims a login attempt from Thailand", "Account 'frozen in 30 minutes'"], evidence: [], timeline: [["0:18", "Medium alert"], ["0:25", "Customer ended call"]], status: "Monitoring" },
+  ];
+  const pr = c => (c.risk / 100) * c.mid * (c.next / 100 + .05) * (c.jaga ? 1.5 : 1);
+  CASES.sort((a, b) => pr(b) - pr(a));
+  let sel = CASES[0].id;
+  const BADGE = { "Open": "b-red", "Monitoring": "b-grey", "🧊 Frozen": "b-teal", "📞 Calling": "b-orange", "🚩 Mule flagged": "b-violet" };
+  const col = v => v >= 80 ? "var(--red)" : v >= 50 ? "var(--orange)" : "var(--green)";
+  function render() {
+    document.getElementById("rows").innerHTML = CASES.map((c, n) => `
+      <tr class="${c.id === sel ? "sel" : ""}" data-id="${c.id}">
+        <td><span class="rank ${n === 0 ? "top" : ""}">${n + 1}</span></td>
+        <td><b>${c.who}</b>${c.jaga ? ' <span class="badge b-violet">Jaga Penuh</span>' : ""}<br><small class="tiny">${c.id}</small></td>
+        <td>${c.type}</td>
+        <td><span class="mini-bar"><i style="width:${c.risk}%;background:${col(c.risk)}"></i></span><b>${c.risk}%</b></td>
+        <td class="hide-sm">${c.next}%</td>
+        <td class="hide-sm">${c.shared}</td>
+        <td><b>${c.rm}</b></td>
+        <td><span class="badge ${BADGE[c.status] || "b-grey"}">${c.status}</span></td></tr>`).join("");
+    document.querySelectorAll("#rows tr").forEach(tr => tr.onclick = () => { sel = tr.dataset.id; render(); });
+    const c = CASES.find(x => x.id === sel);
+    document.getElementById("drawer").innerHTML = `
+      <div class="row"><span class="avatar av-red">${UI.I.shieldAlert}</span><div class="grow"><h3>${c.name}</h3><small class="tiny">${c.who} · ${c.id}</small></div><span class="badge ${BADGE[c.status] || "b-grey"}">${c.status}</span></div>
+      <div class="stats" style="margin-top:14px"><div class="stat warn"><b>${c.risk}%</b><span>scam risk</span></div><div class="stat"><b>${c.next}%</b><span>loss in next 30 s</span></div></div>
+      <div class="why"><h4>Why (caller's words)</h4>${c.reasons.map((r, n) => `<div class="reason"><span class="n">${n + 1}</span><div><b>${r}</b></div></div>`).join("")}</div>
+      ${c.evidence.length ? `<div class="why"><h4>Evidence</h4><div class="chips">${c.evidence.map(e => `<span class="badge b-violet">${e}</span>`).join("")}</div></div>` : ""}
+      <div class="why"><h4>Timeline</h4><div class="timeline">${c.timeline.map(x => `<div class="tl"><small>${x[0]}</small>${x[1]}</div>`).join("")}</div></div>
+      <div class="stack" style="margin-top:14px">
+        <button class="btn btn-danger btn-block" data-a="🧊 Frozen">${UI.I.snow} Freeze now</button>
+        <div class="btn-grid"><button class="btn btn-outline btn-sm" data-a="📞 Calling">${UI.I.phone} Call customer + Guardian</button>
+        <button class="btn btn-outline btn-sm" data-a="🚩 Mule flagged">${UI.I.flag} Flag mule</button></div>
+      </div>`;
+    document.querySelectorAll("#drawer [data-a]").forEach(b => b.onclick = () => {
+      c.status = b.dataset.a;
+      if (c.status === "🧊 Frozen") document.getElementById("kFrozen").textContent = +document.getElementById("kFrozen").textContent + 1;
+      UI.toast(`${c.id}: ${c.status}`); render();
+    });
+    document.getElementById("kOpen").textContent = CASES.filter(x => x.status === "Open").length;
+  }
+  render();
+</script>
+</body>
+</html>

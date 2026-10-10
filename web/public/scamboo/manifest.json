@@ -1,0 +1,17 @@
+{
+  "name": "ScamBoo: Perlindungan Panggilan",
+  "short_name": "ScamBoo",
+  "description": "Amaran panggilan penipuan sebelum anda rugi. Scam-call protection that warns you before the money moves.",
+  "lang": "ms",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
