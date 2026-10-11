@@ -35,7 +35,7 @@ SCAMBOO_ACCESS_KEY=<private-app-access-key>
 
 # ScamBoo main features
 ✨ Key Features
-/*
+
 1. Suspicious Caller Identification
 
 Flags potentially suspicious or unknown phone numbers.
