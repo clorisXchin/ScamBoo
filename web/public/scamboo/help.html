@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>ScamBoo · Bantuan</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-32.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ScamBoo">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<div class="app">
+  <main class="page">
+    <h1 class="page-title" data-bm="Saya perlukan bantuan" data-en="I need help"></h1>
+    <p class="page-sub" data-read data-bm="Jangan risau. Tekan satu butang di bawah, kami sambungkan anda." data-en="Don't worry. Tap one button below and we'll connect you."></p>
+
+    <section class="section">
+      <a class="tel-btn tel-red" id="telBank" href="#bankHow">
+        <span class="ico" data-icon="bank"></span>
+        <span><b data-bm="Telefon bank saya" data-en="Call my bank"></b><small data-bm="Guna nombor di belakang kad bank anda" data-en="Use the number on the back of your bank card"></small></span>
+        <span class="call" data-icon="phone"></span></a>
+      <a class="tel-btn tel-navy" href="tel:997">
+        <span class="ico" data-icon="siren"></span>
+        <span><b data-bm="997 · Pusat Respons Scam" data-en="997 · Scam Response Centre"></b><small data-bm="Pusat Respons Scam Kebangsaan (NSRC)" data-en="National Scam Response Centre (NSRC)"></small></span>
+        <span class="call" data-icon="phone"></span></a>
+      <a class="tel-btn tel-teal" id="telAmir">
+        <span class="ico" data-icon="family"></span>
+        <span><b data-bm="Telefon Amir" data-en="Call Amir"></b><small data-bm="Kenalan kecemasan anda" data-en="Your emergency contact"></small></span>
+        <span class="call" data-icon="phone"></span></a>
+      <p class="tiny" id="bankHow" data-bm="Jangan guna nombor yang pemanggil beri. Telefon nombor di belakang kad anda atau dalam aplikasi bank, minta sekat akaun dan kad." data-en="Never use a number the caller gave you. Call the number on the back of your card or in your bank's app, and ask them to block your account and card."></p>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3 data-bm="Sudah beri TAC atau pindah duit?" data-en="Already gave a TAC or moved money?"></h3></div>
+      <p class="muted" style="margin-bottom:10px" data-bm="Buat 3 langkah ini. Tekan bila siap." data-en="Do these 3 steps. Tap each when done."></p>
+      <div id="steps" data-read>
+        <button class="step" data-n="1"><span class="num">1</span><span><b data-bm="Telefon bank dan sekat akaun" data-en="Call your bank and block your account"></b><small data-bm="Lagi cepat, lagi banyak duit boleh diselamatkan" data-en="The faster you call, the more money can be saved"></small></span></button>
+        <button class="step" data-n="2"><span class="num">2</span><span><b data-bm="Telefon 997 dalam masa 24 jam" data-en="Call 997 within 24 hours"></b><small data-bm="Mereka boleh cuba tahan duit di bank penerima" data-en="They can try to hold the money at the receiving bank"></small></span></button>
+        <button class="step" data-n="3"><span class="num">3</span><span><b data-bm="Beritahu keluarga" data-en="Tell your family"></b><small data-bm="Anda tidak bersalah. Penipu memang pandai." data-en="It's not your fault. Scammers are very skilled."></small></span></button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3 data-bm="Semak nombor telefon" data-en="Check a phone number"></h3></div>
+      <div class="lookup">
+        <input class="input" id="num" inputmode="tel" data-ph-bm="cth. 03-2266 1234" data-ph-en="e.g. 03-2266 1234" aria-label="Phone number">
+        <button class="btn btn-navy" id="check" aria-label="Check"><span data-icon="search"></span></button>
+      </div>
+      <div id="result"></div>
+    </section>
+  </main>
+</div>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+  UI.mount("help");
+  document.getElementById("telAmir").href = "tel:" + Store.settings().contactTel;
+  document.querySelectorAll(".step").forEach(b => b.onclick = () => {
+    b.classList.toggle("done");
+    b.querySelector(".num").innerHTML = b.classList.contains("done") ? UI.I.check : b.dataset.n;
+  });
+  // Demo community reports (in the real app: reports from other users, matched by number).
+  const REPORTS = [
+    { m: /2266/, n: 13, label: ["PDRM / polis palsu", "fake PDRM / police"], tier: "red" },
+    { m: /2716/, n: 12, label: ["polis palsu", "fake police"], tier: "red" },
+    { m: /880/, n: 5, label: ["hadiah cabutan bertuah palsu", "fake lucky draw"], tier: "orange" },
+  ];
+  document.getElementById("check").onclick = () => {
+    const v = document.getElementById("num").value.trim();
+    const box = document.getElementById("result");
+    if (!v) { box.innerHTML = ""; return; }
+    const hit = REPORTS.find(r => r.m.test(v.replace(/\s/g, "")));
+    box.innerHTML = hit
+      ? `<div class="result" style="background:var(--red-bg);color:var(--red-2)"><b>⚠️ ${UI.t([`${hit.n} orang lapor nombor ini`, `${hit.n} people reported this number`])}</b><br>${UI.t(["Sebagai", "As"])}: ${UI.t(hit.label)}. ${UI.t(["Jangan angkat atau jangan beri apa-apa maklumat.", "Don't answer or share anything."])}</div>`
+      : `<div class="result" style="background:var(--green-bg);color:#145C34"><b>✓ ${UI.t(["Tiada laporan untuk nombor ini", "No reports for this number"])}</b><br>${UI.t(["Tetap berhati-hati: jangan beri TAC kepada sesiapa.", "Still be careful: never share your TAC."])}</div>`;
+  };
+  document.getElementById("num").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("check").click(); });
+</script>
+</body>
+</html>

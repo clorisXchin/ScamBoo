@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>ScamBoo · Utama</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-32.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ScamBoo">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<div class="app">
+  <main class="page">
+    <p class="muted" style="font-size:1.05rem" id="greet"></p>
+    <h1 class="page-title">Mak Rosnah</h1>
+
+    <section class="section hidden" id="installSec">
+      <div class="install">
+        <img src="assets/icons/icon-192.png" alt="">
+        <div class="grow"><b data-bm="Pasang sebagai aplikasi" data-en="Install as an app"></b>
+          <p id="installHow"></p></div>
+        <button class="btn btn-primary btn-sm hidden" id="installBtn" data-bm="Pasang" data-en="Install"></button>
+        <button class="x" id="installX" aria-label="Close">×</button>
+      </div>
+    </section>
+
+    <!-- 1. Status in words, not numbers -->
+    <section class="section">
+      <div class="status" data-read>
+        <img class="status-boo boo-calm" src="assets/brand/ghost.png" alt=""><div class="tick" data-icon="check"></div>
+        <h2 data-bm="Anda selamat" data-en="You're safe"></h2>
+        <p data-bm="Kami jaga setiap panggilan dari nombor yang anda tak kenal." data-en="We watch every call from numbers you don't know."></p>
+        <p id="blocked" style="margin-top:10px;font-weight:700"></p>
+      </div>
+    </section>
+
+    <!-- 2. One big emergency path -->
+    <section class="section">
+      <a class="help-big" href="help.html" data-read>
+        <span class="ico" data-icon="lifebuoy"></span>
+        <span><span data-bm="Saya rasa ditipu" data-en="I think I'm being scammed"></span>
+          <small data-bm="Telefon bank, 997 atau Amir dengan satu tekan" data-en="Call your bank, 997 or Amir in one tap"></small></span>
+      </a>
+    </section>
+
+    <!-- 3. Recent calls, plain words -->
+    <section class="section">
+      <div class="section-head"><h3 data-bm="Panggilan terakhir" data-en="Recent calls"></h3><a href="history.html" data-bm="Lihat semua" data-en="See all"></a></div>
+      <div class="card list" id="recent"></div>
+    </section>
+
+    <!-- 4. Who looks after me -->
+    <section class="section">
+      <div class="card">
+        <div class="row"><span class="avatar av-violet">AM</span>
+          <div class="grow"><b data-bm="Amir menjaga anda" data-en="Amir looks after you"></b>
+            <small class="tiny" data-bm="Dia dapat amaran senyap kalau ada bahaya" data-en="He gets a silent alert if something's wrong"></small></div>
+          <a class="btn btn-primary btn-sm" id="callAmir"><span data-icon="phone"></span><span data-bm="Call" data-en="Call"></span></a></div>
+      </div>
+    </section>
+
+    <!-- 5. Practice (the demo, framed as scam-awareness training) -->
+    <section class="section">
+      <a class="practice" href="call.html">
+        <span class="ico"><img src="assets/brand/ghost-96.png" alt=""></span>
+        <span class="grow"><b data-bm="Latihan: kenali panggilan penipuan" data-en="Practice: spot a scam call"></b>
+          <small data-bm="Dengar contoh 'polis' palsu menelefon (1 minit)" data-en="Hear an example fake 'police' call (1 minute)"></small></span>
+        <span data-icon="chevron" style="width:24px"></span>
+      </a>
+    </section>
+
+    <!-- 6. Tip -->
+    <section class="section">
+      <div class="card" style="background:var(--teal-xl);border-color:var(--teal-l)" data-read>
+        <b data-bm="Ingat" data-en="Remember"></b>
+        <p style="font-size:1.05rem;margin-top:4px" data-bm="Polis dan bank <b>tidak pernah</b> minta TAC atau suruh pindah duit melalui telefon." data-en="Police and banks <b>never</b> ask for your TAC or tell you to move money over the phone."></p>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+  if (Store.settings().role === "guardian") location.replace("guardian.html");
+  UI.mount("home");
+  const s = Store.settings();
+  const h = new Date().getHours();
+  document.getElementById("greet").textContent = UI.t(h < 12 ? ["Selamat pagi,", "Good morning,"] : h < 19 ? ["Selamat petang,", "Good afternoon,"] : ["Selamat malam,", "Good evening,"]);
+  const calls = Store.calls();
+  const stopped = calls.filter(c => c.tier === "HIGH").length;
+  document.getElementById("blocked").innerHTML = "✓ " + UI.t([`Minggu ini kami halang ${stopped} panggilan penipuan.`, `This week we stopped ${stopped} scam call${stopped === 1 ? "" : "s"}.`]);
+  const AV = { HIGH: "av-red", MEDIUM: "av-orange", NOT_SURE: "av-teal", LOW: "av-green" };
+  const IC = { HIGH: "shieldAlert", MEDIUM: "alert", NOT_SURE: "phone", LOW: "shield" };
+  document.getElementById("recent").innerHTML = calls.slice(0, 3).map(c => `
+    <div class="item"><span class="avatar ${AV[c.tier]}">${UI.I[IC[c.tier]]}</span>
+      <div class="grow"><b>${UI.t(c.label)}</b><small>${UI.L() ? c.whenEn : c.when}</small></div>${UI.tierBadge(c.tier)}</div>`).join("");
+  document.getElementById("callAmir").href = "tel:" + s.contactTel;
+
+  // Install hint: only in the browser (not once installed), dismissible for this session.
+  (function () {
+    let hidden = false;
+    try { hidden = sessionStorage.getItem("cp_install_x") === "1"; } catch (e) { /* ignore */ }
+    if (UI.standalone() || hidden) return;
+    const sec = document.getElementById("installSec"), how = document.getElementById("installHow"), btn = document.getElementById("installBtn");
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    how.innerHTML = ios
+      ? UI.t(["Tekan <b>Kongsi</b> ⬆️ kemudian <b>Tambah ke Skrin Utama</b>", "Tap <b>Share</b> ⬆️ then <b>Add to Home Screen</b>"])
+      : UI.t(["Buka menu pelayar ⋮ dan pilih <b>Pasang aplikasi</b> / <b>Tambah ke skrin utama</b>", "Open the browser menu ⋮ and choose <b>Install app</b> / <b>Add to Home screen</b>"]);
+    sec.classList.remove("hidden");
+    let deferred = null;
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault(); deferred = e; btn.classList.remove("hidden");
+      how.innerHTML = UI.t(["Ikon di skrin utama, buka skrin penuh, boleh guna tanpa internet.", "Icon on your home screen, full-screen, works offline."]);
+    });
+    btn.onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; sec.classList.add("hidden"); };
+    document.getElementById("installX").onclick = () => { sec.classList.add("hidden"); try { sessionStorage.setItem("cp_install_x", "1"); } catch (e) { /* ignore */ } };
+  })();
+</script>
+</body>
+</html>

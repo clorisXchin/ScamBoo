@@ -12,6 +12,10 @@ npm run dev
 
 With no GPU configuration, the interface uses mock risk findings and replies. The server route at `web/src/app/api/test/route.ts` switches each service to live mode when its base URL is set.
 
+## ScamBoo app (product screens)
+
+The phone app design lives in `web/public/scamboo/` and is served at `http://localhost:3000/scamboo/index.html`. It calls the same `/api/test` route for risk findings and agent replies, so it goes live as soon as the GPU variables below are set. Without them it shows the server's example answers and labels them as examples. See `web/public/scamboo/README.md`.
+
 ## Server-side configuration
 
 Place these in `web/.env.local` for local work, or the hosting provider's server-side environment. Never commit keys or put them in `NEXT_PUBLIC_` variables.

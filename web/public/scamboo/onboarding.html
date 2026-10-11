@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F5F4F2">
+  <title>ScamBoo · Persediaan</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icons/favicon-32.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ScamBoo">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<div class="app" style="padding-bottom:0">
+  <main class="ob" id="ob"></main>
+</div>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+  // 4 steps, done together by the guardian (Amir) and Mak Rosnah. Big choices, one decision per screen.
+  const { I, t } = UI;
+  let step = 0;
+  const S = () => Store.settings();
+  const dots = n => `<div class="dots" aria-label="${t(["Langkah", "Step"])} ${n + 1} / 4">${[0, 1, 2, 3].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`;
+  const choice = (id, on, avatar, title, sub) => `<button class="choice ${on ? "on" : ""}" data-v="${id}">${avatar}<span><b>${title}</b><small>${sub}</small></span></button>`;
+  const foot = (next, back) => `<div class="ob-foot">
+      <button class="btn btn-primary btn-block" id="next">${next}</button>
+      ${back ? `<button class="btn btn-ghost btn-block" id="back">${t(["Kembali", "Back"])}</button>` : `<button class="btn btn-ghost btn-block" id="skip">${t(["Langkau, guna tetapan biasa", "Skip, use the usual settings"])}</button>`}</div>`;
+  const STEPS = [
+    () => `${dots(0)}<img class="ob-logo" src="assets/brand/logo.png" alt="ScamBoo"><h1>${t(["Selamat datang ke ScamBoo", "Welcome to ScamBoo"])}</h1>
+      <p class="lead">${t(["Aplikasi ini dengar panggilan dari nombor yang anda tak kenal, dan beri amaran sebelum anda rugi duit.", "This app listens to calls from numbers you don't know, and warns you before you lose money."])}</p>
+      <p class="lead" style="margin-top:18px"><b>${t(["Pilih bahasa", "Choose a language"])}</b></p>
+      <div class="choices" data-key="lang">
+        ${choice("bm", S().lang === "bm", '<span class="avatar av-teal">BM</span>', "Bahasa Malaysia", "Saya suka Bahasa Melayu")}
+        ${choice("en", S().lang === "en", '<span class="avatar av-teal">EN</span>', "English", "I prefer English")}
+      </div>${foot(t(["Seterusnya", "Next"]))}`,
+    () => `${dots(1)}<h1>${t(["Tahap perlindungan", "Protection level"])}</h1>
+      <p class="lead">${t(["Untuk ibu bapa berumur 55 ke atas, kami cadangkan Jaga Penuh.", "For parents aged 55+, we recommend Jaga Penuh."])}</p>
+      <div class="choices" data-key="mode">
+        ${choice("jaga_penuh", S().mode === "jaga_penuh", `<span class="avatar av-teal">${I.shield}</span>`, t(["Jaga Penuh (disyorkan)", "Jaga Penuh (recommended)"]), t(["Amaran lebih awal. AI boleh ambil alih untuk anda.", "Earlier warnings. The AI can take over for you."]))}
+        ${choice("standard", S().mode === "standard", `<span class="avatar" style="background:var(--cream-2);color:var(--ink-2)">${I.shield}</span>`, "Standard", t(["Amaran bila benar-benar perlu.", "Warnings only when really needed."]))}
+      </div>${foot(t(["Seterusnya", "Next"]), true)}`,
+    () => `${dots(2)}<h1>${t(["Siapa kami patut beritahu?", "Who should we tell?"])}</h1>
+      <p class="lead">${t(["Kalau ada bahaya, orang ini dapat amaran senyap dan boleh telefon anda.", "If there's danger, this person gets a silent alert and can call you."])}</p>
+      <div class="choices" data-key="contact">
+        ${choice("Amir (anak)", true, '<span class="avatar av-violet">AM</span>', "Amir (anak)", "012-000 4471")}
+      </div>
+      <button class="btn btn-ghost" style="margin-top:8px" onclick="UI.toast(UI.t(['Dalam versi sebenar: pilih dari kenalan','In the real app: pick from contacts']))">+ ${t(["Tambah orang lain", "Add someone else"])}</button>
+      ${foot(t(["Seterusnya", "Next"]), true)}`,
+    () => `${dots(3)}<h1>${t(["Janji kami kepada anda", "Our promise to you"])}</h1>
+      <div class="choices">
+        ${choice("", false, `<span class="avatar av-green">${I.lock}</span>`, t(["Kekal dalam telefon", "Stays on your phone"]), t(["Suara tidak dirakam atau dihantar.", "Your voice is never recorded or sent."]))}
+        ${choice("", false, `<span class="avatar av-green">${I.eye}</span>`, t(["Nombor tak dikenali sahaja", "Unknown numbers only"]), t(["Panggilan keluarga dan kawan tidak didengar.", "Calls from family and friends are never checked."]))}
+        ${choice("", false, `<span class="avatar av-green">${I.bank}</span>`, t(["Bank hanya dengan izin", "Bank only with consent"]), t(["Anda pilih bila maklumat dihantar.", "You decide when anything is shared."]))}
+      </div>${foot(t(["Saya setuju, aktifkan", "I agree, turn it on"]), true)}`,
+    () => `<img class="boo-hero boo-wave" style="margin-top:30px" src="assets/brand/ghost.png" alt="">
+      <h1 class="center">${t(["Anda kini dilindungi", "You're now protected"])}</h1>
+      <p class="lead center">${t(["Teruskan guna telefon seperti biasa. Boo akan beritahu kalau ada bahaya, dan boleh jawab penipu untuk anda.", "Use your phone as usual. Boo will tell you if there's danger, and can answer scammers for you."])}</p>
+      <div class="ob-foot"><button class="btn btn-primary btn-block" id="done">${t(["Mula", "Start"])}</button>
+        <a class="btn btn-outline btn-block" href="call.html" id="tryDemo">${t(["Cuba latihan panggilan dulu", "Try a practice call first"])}</a></div>`,
+  ];
+  function render() {
+    const ob = document.getElementById("ob");
+    ob.innerHTML = STEPS[step]();
+    ob.querySelectorAll(".choices[data-key] .choice").forEach(b => b.onclick = () => {
+      const key = b.parentElement.dataset.key;
+      Store.set({ [key]: b.dataset.v });
+      if (key === "lang") UI.applyPrefs();
+      render();
+    });
+    const go = id => document.getElementById(id);
+    if (go("next")) go("next").onclick = () => { step++; render(); window.scrollTo && window.scrollTo(0, 0); };
+    if (go("back")) go("back").onclick = () => { step--; render(); };
+    if (go("skip")) go("skip").onclick = finish;
+    if (go("done")) go("done").onclick = finish;
+    if (go("tryDemo")) go("tryDemo").onclick = () => Store.set({ onboarded: true, role: "elder" });
+    const h = ob.querySelector("h1"); if (h && h.focus) { h.setAttribute("tabindex", "-1"); h.focus(); }
+  }
+  function finish() { Store.set({ onboarded: true, role: "elder" }); location.href = "index.html"; }
+  render();
+</script>
+</body>
+</html>
